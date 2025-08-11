@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(node:*)"
+    ],
+    "deny": []
+  }
+}

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRE Vocab Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background-color: #229954;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .word-queue {
+            margin-top: 20px;
+        }
+        
+        .word-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background: white;
+        }
+        
+        .word-item:last-child {
+            border-bottom: none;
+        }
+        
+        .word-content {
+            flex-grow: 1;
+        }
+        
+        .word-text {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .word-status {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .status-pending {
+            background-color: #f39c12;
+        }
+        
+        .status-approved {
+            background-color: #27ae60;
+        }
+        
+        .status-rejected {
+            background-color: #e74c3c;
+        }
+        
+        .word-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .definition-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+            margin-right: 10px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            padding: 15px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .ai-content {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .ai-image {
+            max-width: 200px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .btn-ai {
+            background-color: #9b59b6;
+        }
+
+        .btn-ai:hover {
+            background-color: #8e44ad;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .anki-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        
+        .status-icon {
+            font-size: 20px;
+        }
+        
+        .status-connected {
+            color: #27ae60;
+        }
+        
+        .status-disconnected {
+            color: #e74c3c;
+        }
+        
+        .status-checking {
+            color: #f39c12;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="anki-status" id="ankiStatus">
+        <span class="status-icon" id="statusIcon">⏳</span>
+        <span id="statusText">Checking AnkiConnect...</span>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>GRE Vocabulary Manager</h1>
+            <p>Paste your words, review them, and export to Anki</p>
+        </div>
+        
+        <div class="card input-section">
+            <h2>Add Words</h2>
+            <textarea 
+                id="wordInput" 
+                placeholder="Paste your vocabulary words here, one per line...&#10;Example:&#10;aberrant&#10;abscond&#10;abstemious&#10;admonish">
+            </textarea>
+            <button class="btn" onclick="addWords()">Add Words to Queue</button>
+        </div>
+        
+        <div class="card">
+            <div class="stats" id="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="pendingCount">0</span>
+                    <span class="stat-label">Pending</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="approvedCount">0</span>
+                    <span class="stat-label">Approved</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="rejectedCount">0</span>
+                    <span class="stat-label">Rejected</span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-success" onclick="exportToAnki()">Add to Anki Deck</button>
+                <button class="btn btn-secondary" onclick="clearApproved()">Clear Approved</button>
+                <button class="btn btn-secondary" onclick="refreshQueue()">Refresh</button>
+            </div>
+        </div>
+        
+        <div id="alerts"></div>
+        
+        <div class="card">
+            <h2>Word Queue</h2>
+            <div id="wordQueue" class="word-queue">
+                <!-- Words will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let wordQueue = [];
+
+        async function addWords() {
+            const input = document.getElementById('wordInput');
+            const words = input.value.trim();
+            
+            if (!words) {
+                showAlert('Please enter some words', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/words', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ words })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(`Added ${result.added} words to queue`, 'success');
+                    input.value = '';
+                    loadQueue();
+                }
+            } catch (error) {
+                showAlert('Error adding words', 'error');
+            }
+        }
+
+        async function loadQueue() {
+            try {
+                const response = await fetch('/api/queue');
+                wordQueue = await response.json();
+                renderQueue();
+                updateStats();
+            } catch (error) {
+                showAlert('Error loading queue', 'error');
+            }
+        }
+
+        async function generateAI(id) {
+            const wordItem = document.querySelector(`[data-word-id="${id}"]`);
+            if (wordItem) {
+                wordItem.classList.add('loading');
+            }
+            
+            showAlert('Generating AI content...', 'success');
+            
+            try {
+                const response = await fetch(`/api/generate-ai/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('AI content generated successfully!', 'success');
+                    loadQueue();
+                } else {
+                    showAlert('Failed to generate AI content', 'error');
+                }
+            } catch (error) {
+                showAlert('Error generating AI content', 'error');
+            } finally {
+                if (wordItem) {
+                    wordItem.classList.remove('loading');
+                }
+            }
+        }
+
+        async function approveWord(id, definition = '', example = '') {
+            try {
+                const response = await fetch(`/api/approve/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ definition, example })
+                });
+                
+                if (response.ok) {
+                    loadQueue();
+                }
+            } catch (error) {
+                showAlert('Error approving word', 'error');
+            }
+        }
+
+        async function rejectWord(id) {
+            try {
+                const response = await fetch(`/api/reject/${id}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadQueue();
+                }
+            } catch (error) {
+                showAlert('Error rejecting word', 'error');
+            }
+        }
+
+        async function exportToAnki() {
+            // Count approved words first
+            const approvedCount = wordQueue.filter(w => w.status === 'approved').length;
+            
+            if (approvedCount === 0) {
+                showAlert('No approved words to export', 'error');
+                return;
+            }
+            
+            showAlert(`🚀 Starting export of ${approvedCount} words to Anki...`, 'success');
+            showAlert('📡 Connecting to AnkiConnect...', 'success');
+            
+            try {
+                const response = await fetch('/api/export/anki', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success summary
+                    showAlert(`✅ Export Complete! Added ${result.added} cards to Anki`, 'success');
+                    
+                    if (result.errors && result.errors.length > 0) {
+                        showAlert(`⚠️ ${result.errors.length} errors occurred:`, 'error');
+                        result.errors.forEach((error, index) => {
+                            setTimeout(() => {
+                                showAlert(`Error ${index + 1}: ${error}`, 'error');
+                            }, (index + 1) * 500); // Stagger error messages
+                        });
+                    }
+                    
+                    // Show detailed breakdown
+                    setTimeout(() => {
+                        showAlert(`📊 Final Results: ${result.added} successful, ${result.errors?.length || 0} failed`, 'success');
+                    }, (result.errors?.length || 0) * 500 + 1000);
+                    
+                    loadQueue();
+                } else {
+                    showAlert(`❌ Export failed: ${result.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Error connecting to Anki. Make sure Anki is running with AnkiConnect addon.', 'error');
+                console.error('Export error:', error);
+            }
+        }
+
+        async function clearApproved() {
+            if (confirm('Are you sure you want to clear all approved words?')) {
+                try {
+                    const response = await fetch('/api/clear-approved', {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showAlert(`Removed ${result.removed} approved words`, 'success');
+                        loadQueue();
+                    }
+                } catch (error) {
+                    showAlert('Error clearing approved words', 'error');
+                }
+            }
+        }
+
+        function refreshQueue() {
+            loadQueue();
+            showAlert('Queue refreshed', 'success');
+        }
+
+        function renderQueue() {
+            const container = document.getElementById('wordQueue');
+            
+            if (wordQueue.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No words in queue</p>';
+                return;
+            }
+            
+            container.innerHTML = wordQueue.map(word => {
+                const statusClass = `status-${word.status}`;
+                let actions = '';
+                let aiContent = '';
+                
+                if (word.definition || word.example || word.imageUrl) {
+                    aiContent = `
+                        <div class="ai-content">
+                            ${word.definition ? `<p><strong>Definition:</strong> ${word.definition}</p>` : ''}
+                            ${word.example ? `<p><strong>Example:</strong> <em>${word.example}</em></p>` : ''}
+                            ${word.imageUrl ? `<img src="${word.imageUrl}" class="ai-image" alt="AI generated image for ${word.word}">` : ''}
+                        </div>
+                    `;
+                }
+                
+                if (word.status === 'pending') {
+                    actions = `
+                        <button class="btn btn-ai" onclick="generateAI(${word.id})" ${word.aiGenerated ? 'disabled' : ''}>
+                            ${word.aiGenerated ? 'AI Generated' : 'Generate AI'}
+                        </button>
+                        <input type="text" class="definition-input" placeholder="Definition (optional)" 
+                               id="def-${word.id}" value="${word.definition || ''}">
+                        <input type="text" class="definition-input" placeholder="Example (optional)" 
+                               id="ex-${word.id}" value="${word.example || ''}">
+                        <button class="btn btn-success" onclick="approveWithContent(${word.id})">Approve</button>
+                        <button class="btn btn-danger" onclick="rejectWord(${word.id})">Reject</button>
+                    `;
+                }
+                
+                return `
+                    <div class="word-item" data-word-id="${word.id}">
+                        <div class="word-content">
+                            <div class="word-text">${word.word}</div>
+                            ${aiContent}
+                            <span class="word-status ${statusClass}">${word.status}${word.aiGenerated ? ' (AI)' : ''}</span>
+                        </div>
+                        <div class="word-actions">
+                            ${actions}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function approveWithContent(id) {
+            const definitionInput = document.getElementById(`def-${id}`);
+            const exampleInput = document.getElementById(`ex-${id}`);
+            const definition = definitionInput ? definitionInput.value : '';
+            const example = exampleInput ? exampleInput.value : '';
+            approveWord(id, definition, example);
+        }
+
+        function updateStats() {
+            const pending = wordQueue.filter(w => w.status === 'pending').length;
+            const approved = wordQueue.filter(w => w.status === 'approved').length;
+            const rejected = wordQueue.filter(w => w.status === 'rejected').length;
+            
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('rejectedCount').textContent = rejected;
+        }
+
+        function showAlert(message, type) {
+            const alerts = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            alerts.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        async function checkAnkiStatus() {
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            
+            statusIcon.textContent = '⏳';
+            statusIcon.className = 'status-icon status-checking';
+            statusText.textContent = 'Checking AnkiConnect...';
+            
+            try {
+                const response = await fetch('/api/anki-status');
+                const status = await response.json();
+                
+                if (status.connected) {
+                    statusIcon.textContent = '✅';
+                    statusIcon.className = 'status-icon status-connected';
+                    statusText.textContent = `Anki Connected (v${status.version})`;
+                    
+                    if (status.deckExists) {
+                        statusText.textContent += ` - "${status.deckName}" deck ready`;
+                    } else {
+                        statusText.textContent += ` - "${status.deckName}" deck will be created`;
+                    }
+                } else {
+                    statusIcon.textContent = '❌';
+                    statusIcon.className = 'status-icon status-disconnected';
+                    statusText.textContent = 'Anki not connected - Please start Anki';
+                }
+            } catch (error) {
+                statusIcon.textContent = '⚠️';
+                statusIcon.className = 'status-icon status-disconnected';
+                statusText.textContent = 'Server error - Check console';
+            }
+        }
+
+        // Load queue on page load
+        loadQueue();
+        
+        // Check Anki status on page load
+        checkAnkiStatus();
+        
+        // Check Anki status every 5 seconds
+        setInterval(checkAnkiStatus, 5000);
+    </script>
+</body>
+</html>
