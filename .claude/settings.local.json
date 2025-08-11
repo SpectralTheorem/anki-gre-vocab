@@ -4,7 +4,11 @@
       "Bash(mkdir:*)",
       "Bash(pkill:*)",
       "Bash(true)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(gh repo create:*)",
+      "Bash(git push:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh auth:*)"
     ],
     "deny": []
   }

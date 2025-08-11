@@ -2,16 +2,16 @@
 
 A powerful web application that uses AI to generate vocabulary cards and automatically adds them to Anki for studying.
 
-## ✨ Features
+## Features
 
-- **🤖 AI-Powered Content Generation**: Uses OpenAI GPT-5-mini and DALL-E 3 to create definitions, example sentences, and memorable images
-- **📚 Direct Anki Integration**: Automatically adds cards to your Anki deck via AnkiConnect
-- **🎯 Smart Review System**: Review and approve words before adding to Anki
-- **🖼️ Visual Memory Aid**: AI-generated images stored directly in Anki for better retention
-- **📊 Real-time Status**: Live connection status and detailed progress feedback
-- **🔄 Robust Error Handling**: Automatic retry logic and comprehensive error reporting
+- ** AI-Powered Content Generation**: Uses OpenAI GPT-5-mini and DALL-E 3 to create definitions, example sentences, and memorable images
+- ** Direct Anki Integration**: Automatically adds cards to your Anki deck via AnkiConnect
+- ** Smart Review System**: Review and approve words before adding to Anki
+- ** Visual Memory Aid**: AI-generated images stored directly in Anki for better retention
+- ** Real-time Status**: Live connection status and detailed progress feedback
+- ** Robust Error Handling**: Automatic retry logic and comprehensive error reporting
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -106,14 +106,13 @@ The application requires AnkiConnect addon to be installed and running. Cards ar
 - **Back**: Definition + Example + AI-generated image
 - **Tags**: 'gre', 'vocabulary', 'ai-generated'
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 **❌ "Cannot connect to Anki"**
 - Ensure Anki Desktop is running
 - Check that AnkiConnect addon is installed
-- Verify Anki is not in review mode
 
 **❌ "AI generation failed"**
 - Check your OpenAI API key in `.env`
@@ -125,7 +124,6 @@ The application requires AnkiConnect addon to be installed and running. Cards ar
 - Verify AnkiConnect permissions
 - Look for error messages in console
 
-## 📝 Development
 
 ### Project Structure
 ```
@@ -142,24 +140,7 @@ anki-gre-vocab/
 - `npm start`: Start the production server
 - `npm run dev`: Start with nodemon for development
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## 📄 License
 
 This project is licensed under the MIT License.
 
-## 🙏 Acknowledgments
-
-- OpenAI for GPT-3.5 and DALL-E 3 APIs
-- AnkiConnect for Anki integration
-- The Anki community for the amazing spaced repetition system
-
----
-
-**Made with ❤️ for GRE test preparation**
