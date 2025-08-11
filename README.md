@@ -4,12 +4,12 @@ A powerful web application that uses AI to generate vocabulary cards and automat
 
 ## Features
 
-- ** AI-Powered Content Generation**: Uses OpenAI GPT-5-mini and DALL-E 3 to create definitions, example sentences, and memorable images
-- ** Direct Anki Integration**: Automatically adds cards to your Anki deck via AnkiConnect
-- ** Smart Review System**: Review and approve words before adding to Anki
-- ** Visual Memory Aid**: AI-generated images stored directly in Anki for better retention
-- ** Real-time Status**: Live connection status and detailed progress feedback
-- ** Robust Error Handling**: Automatic retry logic and comprehensive error reporting
+- **AI-Powered Content Generation**: Uses OpenAI GPT-5-mini and DALL-E 3 to create definitions, example sentences, and memorable images
+- **Direct Anki Integration**: Automatically adds cards to your Anki deck via AnkiConnect
+- **Smart Review System**: Review and approve words before adding to Anki
+- **Visual Memory Aid**: AI-generated images stored directly in Anki for better retention
+- **Real-time Status**: Live connection status and detailed progress feedback
+- **Robust Error Handling**: Automatic retry logic and comprehensive error reporting
 
 ## Quick Start
 
@@ -83,7 +83,7 @@ A powerful web application that uses AI to generate vocabulary cards and automat
 
 ### Architecture
 - **Backend**: Node.js with Express
-- **AI Services**: OpenAI GPT-5-mini and DALL-E 3
+- **AI Services**: OpenAI GPT-5-mini and GPT Image 1, OpenAI's latest image generation model
 - **Anki Integration**: AnkiConnect API
 - **Frontend**: Vanilla JavaScript with real-time updates
 
