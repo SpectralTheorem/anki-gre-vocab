@@ -67,18 +67,20 @@ async function storeImageInAnki(imageBase64, filename, mimeType) {
 }
 async function generateAIContent(word) {
     try {
+        console.log(`🤖 Generating AI content for word: "${word}"`);
+        
         const completion = await openai.chat.completions.create({
             model: "gpt-5-mini",
             messages: [
                 {
                     role: "system",
-                    content: "You are a GRE vocabulary tutor. Create educational content for vocabulary words."
+                    content: "You are a GRE vocabulary tutor. Create educational content for vocabulary words. Always respond with valid JSON format."
                 },
                 {
                     role: "user", 
                     content: `For the GRE word "${word}", provide:
-1. A clear, concise definition
-2. An example sentence that demonstrates the word's usage
+1. A clear, concise definition suitable for GRE test preparation
+2. An example sentence that demonstrates the word's usage in context
 3. A vivid, memorable visual scene description that would help someone remember this word (describe an image that connects the word's meaning to a memorable scenario)
 
 Format your response as JSON:
@@ -88,17 +90,27 @@ Format your response as JSON:
   "imagePrompt": "..."
 }`
                 }
-            ],
-            temperature: 0.7
+            ]
+            // GPT-5-mini uses default temperature (1.0) and doesn't support custom parameters
         });
 
-        return JSON.parse(completion.choices[0].message.content);
+        console.log(`📝 Raw LLM response: ${completion.choices[0].message.content}`);
+        
+        const parsedContent = JSON.parse(completion.choices[0].message.content);
+        
+        console.log(`✅ AI content generated successfully for "${word}"`);
+        console.log(`   Definition: ${parsedContent.definition.substring(0, 50)}...`);
+        console.log(`   Example: ${parsedContent.example.substring(0, 50)}...`);
+        console.log(`   Image prompt: ${parsedContent.imagePrompt.substring(0, 50)}...`);
+        
+        return parsedContent;
     } catch (error) {
-        console.error('Error generating AI content:', error);
+        console.error('❌ Error generating AI content:', error.message);
+        console.error('   Full error:', error);
         return {
-            definition: `Definition for ${word}`,
-            example: `Example sentence with ${word}`,
-            imagePrompt: `Visual representation of ${word}`
+            definition: `Failed to generate definition for ${word}. Error: ${error.message}`,
+            example: `Could not generate example sentence for ${word}`,
+            imagePrompt: `Simple illustration of the concept: ${word}`
         };
     }
 }
@@ -496,6 +508,31 @@ app.post('/api/export/anki', async (req, res) => {
         res.json(response);
     } catch (error) {
         res.status(500).json({ error: 'Failed to export to Anki' });
+    }
+});
+
+app.post('/api/anki-sync', async (req, res) => {
+    console.log('🔄 Triggering Anki sync...');
+    
+    try {
+        // Test connection first
+        await callAnkiConnect('version');
+        
+        // Trigger sync
+        await callAnkiConnect('sync');
+        
+        console.log('✅ Anki sync completed successfully');
+        res.json({ 
+            success: true, 
+            message: 'Anki sync completed successfully'
+        });
+    } catch (error) {
+        console.error('❌ Anki sync failed:', error.message);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Sync failed: ' + error.message,
+            message: 'Make sure Anki is logged into AnkiWeb and has sync enabled'
+        });
     }
 });
 

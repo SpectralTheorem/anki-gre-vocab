@@ -312,6 +312,7 @@
             
             <div class="controls">
                 <button class="btn btn-success" onclick="exportToAnki()">Add to Anki Deck</button>
+                <button class="btn btn-secondary" onclick="syncAnki()">🔄 Sync Anki</button>
                 <button class="btn btn-secondary" onclick="clearApproved()">Clear Approved</button>
                 <button class="btn btn-secondary" onclick="refreshQueue()">Refresh</button>
             </div>
@@ -474,6 +475,15 @@
                     // Show detailed breakdown
                     setTimeout(() => {
                         showAlert(`📊 Final Results: ${result.added} successful, ${result.errors?.length || 0} failed`, 'success');
+                        
+                        // Offer to sync if cards were added successfully
+                        if (result.added > 0) {
+                            setTimeout(() => {
+                                if (confirm('🔄 Cards added! Would you like to sync with AnkiWeb now to access them on other devices?')) {
+                                    syncAnki();
+                                }
+                            }, 1000);
+                        }
                     }, (result.errors?.length || 0) * 500 + 1000);
                     
                     loadQueue();
@@ -501,6 +511,36 @@
                 } catch (error) {
                     showAlert('Error clearing approved words', 'error');
                 }
+            }
+        }
+
+        async function syncAnki() {
+            showAlert('🔄 Syncing with AnkiWeb...', 'success');
+            
+            try {
+                const response = await fetch('/api/anki-sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('✅ Anki sync completed successfully!', 'success');
+                    showAlert('📱 Your cards are now synced across all devices', 'success');
+                } else {
+                    showAlert(`❌ Sync failed: ${result.error}`, 'error');
+                    if (result.message) {
+                        setTimeout(() => {
+                            showAlert(`💡 ${result.message}`, 'error');
+                        }, 1000);
+                    }
+                }
+            } catch (error) {
+                showAlert('❌ Error connecting to Anki for sync', 'error');
+                console.error('Sync error:', error);
             }
         }
 
