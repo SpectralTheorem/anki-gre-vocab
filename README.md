@@ -100,6 +100,30 @@ A powerful web application that uses AI to generate vocabulary cards and automat
 - `ANKI_DECK_NAME`: Target Anki deck name (default: "Default")
 - `ANKI_CONNECT_URL`: AnkiConnect URL (default: "http://localhost:8765")
 
+### Custom AI Prompts
+You can customize how AI generates definitions, examples, and images by creating a `.config.txt` file:
+
+1. **Copy the example file**:
+   ```bash
+   cp .config.example.txt .config.txt
+   ```
+
+2. **Edit the prompts** in `.config.txt`:
+   - `[SYSTEM_PROMPT]`: The AI's role and behavior
+   - `[USER_PROMPT_TEMPLATE]`: How to request content (use `{{WORD}}` as placeholder)
+   - `[IMAGE_PROMPT_PREFIX]`: Style for image generation (use `{{IMAGE_DESCRIPTION}}` as placeholder)
+
+3. **Restart the server** to apply changes:
+   ```bash
+   npm start
+   ```
+
+**Example customizations:**
+- **Academic style**: Focus on etymology and formal language
+- **Conversational style**: Use everyday language and relatable examples  
+- **Memory palace**: Create bizarre, memorable visual scenes
+- **Different image styles**: Watercolor, minimalist, artistic, etc.
+
 ### AnkiConnect Setup
 The application requires AnkiConnect addon to be installed and running. Cards are created with:
 - **Front**: Vocabulary word

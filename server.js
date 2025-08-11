@@ -20,18 +20,139 @@ const openai = new OpenAI({
 const ANKI_CONNECT_URL = process.env.ANKI_CONNECT_URL || 'http://localhost:8765';
 const ANKI_DECK_NAME = process.env.ANKI_DECK_NAME || 'GRE Vocabulary';
 
+// Queue for managing AI generation requests
+class AIGenerationQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+        this.maxConcurrent = 3; // Limit concurrent AI requests
+        this.activeRequests = 0;
+    }
+    
+    enqueue(wordId) {
+        if (!this.queue.some(item => item.wordId === wordId)) {
+            this.queue.push({ wordId, timestamp: Date.now() });
+            console.log(`📥 Added word ID ${wordId} to AI generation queue (${this.queue.length} pending)`);
+            this.processQueue();
+        }
+    }
+    
+    async processQueue() {
+        if (this.processing || this.activeRequests >= this.maxConcurrent || this.queue.length === 0) {
+            return;
+        }
+        
+        this.processing = true;
+        
+        while (this.queue.length > 0 && this.activeRequests < this.maxConcurrent) {
+            const item = this.queue.shift();
+            this.activeRequests++;
+            
+            console.log(`🚀 Processing AI generation for word ID ${item.wordId} (${this.activeRequests} active, ${this.queue.length} pending)`);
+            
+            // Process async without blocking
+            generateAIForWordAsync(item.wordId).finally(() => {
+                this.activeRequests--;
+                // Continue processing queue
+                setTimeout(() => this.processQueue(), 100);
+            });
+        }
+        
+        this.processing = false;
+    }
+    
+    getStatus() {
+        return {
+            pending: this.queue.length,
+            active: this.activeRequests,
+            total: this.queue.length + this.activeRequests
+        };
+    }
+}
+
+const aiQueue = new AIGenerationQueue();
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 const QUEUE_FILE = 'word-queue.json';
+const CONFIG_FILE = '.config.txt';
+
+// Configuration loading
+function loadConfig() {
+    const defaultConfig = {
+        systemPrompt: "You are a GRE vocabulary tutor. Create educational content for vocabulary words. Always respond with valid JSON format.",
+        userPromptTemplate: `For the GRE word "{{WORD}}", provide:
+1. A clear, concise definition suitable for GRE test preparation
+2. An example sentence that demonstrates the word's usage in context
+3. A vivid, memorable visual scene description that would help someone remember this word (describe an image that connects the word's meaning to a memorable scenario)
+
+Format your response as JSON:
+{
+  "definition": "...",
+  "example": "...", 
+  "imagePrompt": "..."
+}`,
+        imagePromptPrefix: "Educational illustration: {{IMAGE_DESCRIPTION}}. Style: clean, simple, educational diagram suitable for vocabulary learning."
+    };
+
+    try {
+        if (fs.existsSync(CONFIG_FILE)) {
+            const configText = fs.readFileSync(CONFIG_FILE, 'utf8');
+            const config = { ...defaultConfig };
+            
+            // Parse the config file sections
+            const systemMatch = configText.match(/\[SYSTEM_PROMPT\]\s*([\s\S]*?)(?=\[|$)/);
+            if (systemMatch) {
+                config.systemPrompt = systemMatch[1].trim();
+            }
+            
+            const userMatch = configText.match(/\[USER_PROMPT_TEMPLATE\]\s*([\s\S]*?)(?=\[|$)/);
+            if (userMatch) {
+                config.userPromptTemplate = userMatch[1].trim();
+            }
+            
+            const imageMatch = configText.match(/\[IMAGE_PROMPT_PREFIX\]\s*([\s\S]*?)(?=\[|#|$)/);
+            if (imageMatch) {
+                config.imagePromptPrefix = imageMatch[1].trim();
+            }
+            
+            console.log('📄 Custom configuration loaded from .config.txt');
+            console.log('🔧 System prompt:', config.systemPrompt.substring(0, 50) + '...');
+            console.log('🔧 Image style:', config.imagePromptPrefix);
+            console.log('🔧 Custom example instruction:', config.userPromptTemplate.includes('everyday conversation') ? 'YES' : 'NO');
+            return config;
+        } else {
+            console.log('📄 Using default AI prompts (no .config.txt found)');
+            return defaultConfig;
+        }
+    } catch (error) {
+        console.error('❌ Error loading config file, using defaults:', error.message);
+        return defaultConfig;
+    }
+}
+
+// Load configuration on startup
+const config = loadConfig();
 
 // AI and AnkiConnect helper functions
 
 async function downloadImageAsBase64(imageUrl) {
     try {
-        console.log(`Downloading image from: ${imageUrl}`);
+        // Handle data URLs (base64) from gpt-image-1
+        if (imageUrl.startsWith('data:image/')) {
+            console.log('Processing base64 data URL from gpt-image-1');
+            const [header, base64Data] = imageUrl.split(',');
+            const mimeType = header.match(/data:([^;]+)/)[1] || 'image/png';
+            
+            console.log(`Base64 image processed successfully, mime: ${mimeType}`);
+            return { base64: base64Data, mimeType };
+        }
+        
+        // Handle regular URLs from dall-e-3
+        console.log(`Downloading image from URL: ${imageUrl}`);
         const response = await axios.get(imageUrl, {
             responseType: 'arraybuffer',
             timeout: 10000
@@ -43,7 +164,7 @@ async function downloadImageAsBase64(imageUrl) {
         console.log(`Image downloaded successfully, size: ${response.data.length} bytes`);
         return { base64, mimeType };
     } catch (error) {
-        console.error('Error downloading image:', error.message);
+        console.error('Error processing image:', error.message);
         return null;
     }
 }
@@ -68,33 +189,29 @@ async function storeImageInAnki(imageBase64, filename, mimeType) {
 async function generateAIContent(word) {
     try {
         console.log(`🤖 Generating AI content for word: "${word}"`);
+        console.log(`🔧 Using custom config: ${config.userPromptTemplate.includes('everyday conversation') ? 'YES (everyday conversation)' : 'NO (default)'}`);
+        
+        // Use custom prompts from config
+        const userPrompt = config.userPromptTemplate.replace(/\{\{WORD\}\}/g, word);
         
         const completion = await openai.chat.completions.create({
             model: "gpt-5-mini",
             messages: [
                 {
                     role: "system",
-                    content: "You are a GRE vocabulary tutor. Create educational content for vocabulary words. Always respond with valid JSON format."
+                    content: config.systemPrompt
                 },
                 {
                     role: "user", 
-                    content: `For the GRE word "${word}", provide:
-1. A clear, concise definition suitable for GRE test preparation
-2. An example sentence that demonstrates the word's usage in context
-3. A vivid, memorable visual scene description that would help someone remember this word (describe an image that connects the word's meaning to a memorable scenario)
-
-Format your response as JSON:
-{
-  "definition": "...",
-  "example": "...", 
-  "imagePrompt": "..."
-}`
+                    content: userPrompt
                 }
             ]
             // GPT-5-mini uses default temperature (1.0) and doesn't support custom parameters
         });
 
         console.log(`📝 Raw LLM response: ${completion.choices[0].message.content}`);
+        console.log(`📤 Sent to GPT-5-mini - System: "${config.systemPrompt}"`);
+        console.log(`📤 Sent to GPT-5-mini - User: "${userPrompt.substring(0, 200)}..."`);
         
         const parsedContent = JSON.parse(completion.choices[0].message.content);
         
@@ -117,15 +234,28 @@ Format your response as JSON:
 
 async function generateAIImage(imagePrompt) {
     try {
+        // Use custom image prompt prefix from config
+        const fullPrompt = config.imagePromptPrefix.replace(/\{\{IMAGE_DESCRIPTION\}\}/g, imagePrompt);
+        console.log(`🎨 Using custom image style: ${config.imagePromptPrefix.includes('ukiyo-e') ? 'YES (ukiyo-e)' : 'NO (default)'}`);
+        console.log(`🎨 Full image prompt: ${fullPrompt.substring(0, 100)}...`);
+        
         const response = await openai.images.generate({
-            model: "dall-e-3",
-            prompt: `Educational illustration: ${imagePrompt}. Style: clean, simple, educational diagram suitable for vocabulary learning.`,
+            model: "gpt-image-1",
+            prompt: fullPrompt,
             size: "1024x1024",
-            quality: "standard",
+            quality: "medium",
             n: 1,
         });
 
-        return response.data[0].url;
+        // gpt-image-1 returns base64, not URL like dall-e-3
+        const imageBase64 = response.data[0].b64_json;
+        if (imageBase64) {
+            // Convert to data URL for display in browser
+            return `data:image/png;base64,${imageBase64}`;
+        } else {
+            console.error('No base64 image data received');
+            return null;
+        }
     } catch (error) {
         console.error('Error generating AI image:', error);
         return null;
@@ -290,7 +420,6 @@ app.post('/api/words', (req, res) => {
         .map(word => ({
             id: Date.now() + Math.random(),
             word: word,
-            status: 'pending',
             definition: '',
             example: '',
             imagePrompt: '',
@@ -302,8 +431,65 @@ app.post('/api/words', (req, res) => {
     queue.push(...wordsArray);
     saveQueue(queue);
     
+    // Add all new words to the AI generation queue
+    console.log(`🚀 Adding ${wordsArray.length} new words to AI generation queue`);
+    wordsArray.forEach(word => {
+        aiQueue.enqueue(word.id);
+    });
+    
     res.json({ success: true, added: wordsArray.length });
 });
+
+// Async function to generate AI content without blocking the response
+async function generateAIForWordAsync(wordId) {
+    try {
+        console.log(`🎯 Starting background AI generation for word ID: ${wordId}`);
+        const queue = loadQueue();
+        const wordIndex = queue.findIndex(w => w.id === wordId);
+        
+        if (wordIndex === -1) {
+            console.log(`⚠️ Word ID ${wordId} not found in queue, skipping`);
+            return;
+        }
+
+        const word = queue[wordIndex];
+        console.log(`🤖 Generating AI content for "${word.word}" (background)`);
+        
+        const aiContent = await generateAIContent(word.word);
+        
+        // Generate image
+        const imageUrl = await generateAIImage(aiContent.imagePrompt);
+        
+        // Update word with AI content - reload queue to get latest state
+        const currentQueue = loadQueue();
+        const currentIndex = currentQueue.findIndex(w => w.id === wordId);
+        
+        if (currentIndex !== -1) {
+            currentQueue[currentIndex].definition = aiContent.definition;
+            currentQueue[currentIndex].example = aiContent.example;
+            currentQueue[currentIndex].imagePrompt = aiContent.imagePrompt;
+            currentQueue[currentIndex].imageUrl = imageUrl;
+            currentQueue[currentIndex].aiGenerated = true;
+            
+            saveQueue(currentQueue);
+            console.log(`✅ Background AI generation completed for "${word.word}"`);
+        } else {
+            console.log(`⚠️ Word "${word.word}" was removed during AI generation`);
+        }
+    } catch (error) {
+        console.error(`❌ Background AI generation failed for word ID ${wordId}:`, error.message);
+        
+        // Mark as failed but keep the word
+        const currentQueue = loadQueue();
+        const currentIndex = currentQueue.findIndex(w => w.id === wordId);
+        if (currentIndex !== -1) {
+            currentQueue[currentIndex].definition = `AI generation failed: ${error.message}`;
+            currentQueue[currentIndex].example = `Error occurred during generation`;
+            currentQueue[currentIndex].aiGenerated = true; // Mark as processed
+            saveQueue(currentQueue);
+        }
+    }
+}
 
 app.post('/api/generate-ai/:id', async (req, res) => {
     const { id } = req.params;
@@ -314,61 +500,48 @@ app.post('/api/generate-ai/:id', async (req, res) => {
         return res.status(404).json({ error: 'Word not found' });
     }
 
-    try {
-        const word = queue[wordIndex];
-        const aiContent = await generateAIContent(word.word);
-        
-        // Generate image
-        const imageUrl = await generateAIImage(aiContent.imagePrompt);
-        
-        // Update word with AI content
-        queue[wordIndex].definition = aiContent.definition;
-        queue[wordIndex].example = aiContent.example;
-        queue[wordIndex].imagePrompt = aiContent.imagePrompt;
-        queue[wordIndex].imageUrl = imageUrl;
-        queue[wordIndex].aiGenerated = true;
-        
-        saveQueue(queue);
-        res.json({ 
-            success: true, 
-            content: {
-                definition: aiContent.definition,
-                example: aiContent.example,
-                imageUrl: imageUrl
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to generate AI content' });
-    }
-});
-
-app.post('/api/approve/:id', (req, res) => {
-    const { id } = req.params;
-    const { definition, example } = req.body;
-    const queue = loadQueue();
+    // Add to queue for regeneration
+    aiQueue.enqueue(parseFloat(id));
     
-    const wordIndex = queue.findIndex(w => w.id == id);
-    if (wordIndex !== -1) {
-        queue[wordIndex].status = 'approved';
-        if (definition) queue[wordIndex].definition = definition;
-        if (example) queue[wordIndex].example = example;
-        saveQueue(queue);
-        res.json({ success: true });
-    } else {
-        res.status(404).json({ error: 'Word not found' });
-    }
+    res.json({ 
+        success: true, 
+        message: 'AI regeneration queued',
+        queueStatus: aiQueue.getStatus()
+    });
 });
 
-app.post('/api/reject/:id', (req, res) => {
+// Add endpoint to get queue status
+app.get('/api/ai-queue-status', (req, res) => {
+    res.json(aiQueue.getStatus());
+});
+
+// Add endpoint to get current configuration
+app.get('/api/config', (req, res) => {
+    res.json({
+        systemPrompt: config.systemPrompt,
+        userPromptTemplate: config.userPromptTemplate,
+        imagePromptPrefix: config.imagePromptPrefix,
+        isCustomConfig: fs.existsSync(CONFIG_FILE)
+    });
+});
+
+
+app.delete('/api/word/:id', (req, res) => {
     const { id } = req.params;
     const queue = loadQueue();
     
-    const wordIndex = queue.findIndex(w => w.id == id);
+    console.log(`Looking for word with ID: ${id} (type: ${typeof id})`);
+    console.log(`Queue IDs: ${queue.map(w => `${w.id} (${typeof w.id})`).join(', ')}`);
+    
+    const wordIndex = queue.findIndex(w => w.id == id || w.id == parseFloat(id));
     if (wordIndex !== -1) {
-        queue[wordIndex].status = 'rejected';
+        const removedWord = queue[wordIndex];
+        console.log(`Found and removing word: ${removedWord.word}`);
+        queue.splice(wordIndex, 1);
         saveQueue(queue);
-        res.json({ success: true });
+        res.json({ success: true, word: removedWord.word });
     } else {
+        console.log(`Word with ID ${id} not found in queue`);
         res.status(404).json({ error: 'Word not found' });
     }
 });
@@ -409,12 +582,12 @@ app.post('/api/export/anki', async (req, res) => {
     
     try {
         const queue = loadQueue();
-        const approvedWords = queue.filter(w => w.status === 'approved');
+        const readyWords = queue.filter(w => w.aiGenerated && w.definition && w.example);
         
-        console.log(`Found ${approvedWords.length} approved words to export`);
+        console.log(`Found ${readyWords.length} ready words to export`);
         
-        if (approvedWords.length === 0) {
-            return res.status(400).json({ error: 'No approved words to export' });
+        if (readyWords.length === 0) {
+            return res.status(400).json({ error: 'No words ready for export. Generate AI content first.' });
         }
 
         // Test AnkiConnect connection with a simple version check
@@ -434,12 +607,12 @@ app.post('/api/export/anki', async (req, res) => {
         let successCount = 0;
         let errors = [];
 
-        console.log(`Processing ${approvedWords.length} words...`);
+        console.log(`Processing ${readyWords.length} words...`);
         
-        for (const word of approvedWords) {
+        for (const word of readyWords) {
             const wordIndex = successCount + errors.length + 1;
             console.log(`\n${'='.repeat(60)}`);
-            console.log(`📝 Processing word ${wordIndex}/${approvedWords.length}: "${word.word}"`);
+            console.log(`📝 Processing word ${wordIndex}/${readyWords.length}: "${word.word}"`);
             console.log(`   Definition: ${word.definition || 'Not set'}`);
             console.log(`   Example: ${word.example || 'Not set'}`);
             console.log(`   Has AI Image: ${word.imageUrl ? 'Yes' : 'No'}`);
@@ -460,7 +633,7 @@ app.post('/api/export/anki', async (req, res) => {
                 console.log(`   Cards created so far: ${successCount}`);
                 
                 // Add delay between cards to avoid rate limiting
-                if (wordIndex < approvedWords.length) {
+                if (wordIndex < readyWords.length) {
                     console.log('   Waiting 200ms before next card...');
                     await new Promise(resolve => setTimeout(resolve, 200));
                 }
@@ -485,11 +658,11 @@ app.post('/api/export/anki', async (req, res) => {
             success: true, 
             added: successCount, 
             failed: errors.length,
-            total: approvedWords.length,
+            total: readyWords.length,
             errors: errors,
-            message: `Successfully added ${successCount}/${approvedWords.length} cards to Anki deck "${ANKI_DECK_NAME}"`,
+            message: `Successfully added ${successCount}/${readyWords.length} cards to Anki deck "${ANKI_DECK_NAME}"`,
             details: {
-                processedWords: approvedWords.map(word => ({
+                processedWords: readyWords.map(word => ({
                     word: word.word,
                     hasDefinition: !!word.definition,
                     hasExample: !!word.example,
@@ -500,10 +673,10 @@ app.post('/api/export/anki', async (req, res) => {
         };
         
         console.log(`\n🎉 EXPORT SUMMARY:`);
-        console.log(`   Total words: ${approvedWords.length}`);
+        console.log(`   Total words: ${readyWords.length}`);
         console.log(`   Successful: ${successCount} ✅`);
         console.log(`   Failed: ${errors.length} ❌`);
-        console.log(`   Success rate: ${((successCount / approvedWords.length) * 100).toFixed(1)}%`);
+        console.log(`   Success rate: ${((successCount / readyWords.length) * 100).toFixed(1)}%`);
         
         res.json(response);
     } catch (error) {
@@ -536,11 +709,11 @@ app.post('/api/anki-sync', async (req, res) => {
     }
 });
 
-app.delete('/api/clear-approved', (req, res) => {
+app.delete('/api/clear-all', (req, res) => {
     const queue = loadQueue();
-    const filteredQueue = queue.filter(w => w.status !== 'approved');
-    saveQueue(filteredQueue);
-    res.json({ success: true, removed: queue.length - filteredQueue.length });
+    const originalCount = queue.length;
+    saveQueue([]);
+    res.json({ success: true, removed: originalCount });
 });
 
 app.listen(PORT, () => {

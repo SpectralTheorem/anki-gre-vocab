@@ -1,0 +1,65 @@
+# GRE Vocabulary Manager - AI Prompt Configuration Example
+# 
+# Copy this file to ".config.txt" and customize the prompts to change how AI generates content.
+# This file shows the default prompts that are used if no .config.txt is present.
+# 
+# IMPORTANT: 
+# - Keep the JSON format structure intact in USER_PROMPT_TEMPLATE
+# - Use {{WORD}} as a placeholder for the vocabulary word
+# - Use {{IMAGE_DESCRIPTION}} as a placeholder in IMAGE_PROMPT_PREFIX
+# - The AI must return valid JSON with "definition", "example", and "imagePrompt" fields
+# 
+# =============================================================================
+
+[SYSTEM_PROMPT]
+You are a GRE vocabulary tutor. Create educational content for vocabulary words. Always respond with valid JSON format.
+
+[USER_PROMPT_TEMPLATE]
+For the GRE word "{{WORD}}", provide:
+1. A clear, concise definition suitable for GRE test preparation
+2. An example sentence that demonstrates the word's usage in context
+3. A vivid, memorable visual scene description that would help someone remember this word (describe an image that connects the word's meaning to a memorable scenario)
+
+Format your response as JSON:
+{
+  "definition": "...",
+  "example": "...", 
+  "imagePrompt": "..."
+}
+
+[IMAGE_PROMPT_PREFIX]
+Educational illustration: {{IMAGE_DESCRIPTION}}. Style: clean, simple, educational diagram suitable for vocabulary learning.
+
+# =============================================================================
+# CUSTOMIZATION IDEAS:
+# 
+# Academic Style:
+# [USER_PROMPT_TEMPLATE]
+# For the GRE word "{{WORD}}", provide:
+# 1. A definition with etymology and formal register appropriate for academic writing
+# 2. An example sentence from academic or literary context
+# 3. A scholarly visual metaphor that connects to the word's historical usage
+# 
+# Conversational Style:
+# [USER_PROMPT_TEMPLATE]
+# For the word "{{WORD}}", provide:
+# 1. A simple, everyday definition that anyone can understand
+# 2. An example sentence using casual, modern language
+# 3. A fun, relatable visual scene that makes the word memorable
+# 
+# Memory Palace Style (Method of Loci):
+# [USER_PROMPT_TEMPLATE]
+# For "{{WORD}}", provide:
+# 1. A definition emphasizing the word's most distinctive features
+# 2. An example showing the word in a memorable, dramatic context
+# 3. A bizarre, exaggerated visual scene designed for memory palace technique
+# 
+# Artistic Image Style:
+# [IMAGE_PROMPT_PREFIX]
+# Watercolor painting: {{IMAGE_DESCRIPTION}}. Style: soft pastels, dreamy, artistic, suitable for memory retention.
+# 
+# Minimalist Image Style:
+# [IMAGE_PROMPT_PREFIX]
+# Simple line drawing: {{IMAGE_DESCRIPTION}}. Style: black and white, minimal, clean lines, icon-like.
+# 
+# =============================================================================

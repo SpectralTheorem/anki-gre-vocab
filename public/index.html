@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GRE Vocab Manager</title>
     <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary-color: #6b7280;
+            --success-color: #10b981;
+            --success-hover: #059669;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --background-color: #fafbfc;
+            --surface-color: #ffffff;
+            --border-color: #e5e7eb;
+            --border-light: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,182 +42,329 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
             line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #fafbfc 0%, #f8fafc 100%);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: var(--spacing-lg);
         }
         
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-lg) 0;
         }
         
         h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            font-weight: 400;
         }
         
         .card {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            background: var(--surface-color);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: var(--spacing-md);
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-md);
         }
         
         .input-section {
-            margin-bottom: 30px;
+            margin-bottom: var(--spacing-lg);
         }
         
         textarea {
             width: 100%;
-            min-height: 150px;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            min-height: 120px;
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
             font-size: 14px;
+            font-family: inherit;
             resize: vertical;
+            background-color: var(--surface-color);
+            transition: all 0.2s ease;
+            line-height: 1.5;
         }
         
         textarea:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        textarea::placeholder {
+            color: var(--text-muted);
         }
         
         .btn {
-            background-color: #3498db;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            margin: 2px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            min-height: 38px;
         }
         
         .btn:hover {
-            background-color: #2980b9;
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
         
         .btn-success {
-            background-color: #27ae60;
+            background-color: var(--success-color);
         }
         
         .btn-success:hover {
-            background-color: #229954;
+            background-color: var(--success-hover);
         }
         
         .btn-danger {
-            background-color: #e74c3c;
+            background-color: var(--danger-color);
         }
         
         .btn-danger:hover {
-            background-color: #c0392b;
+            background-color: var(--danger-hover);
         }
         
         .btn-secondary {
-            background-color: #95a5a6;
+            background-color: var(--secondary-color);
+            color: white;
         }
         
         .btn-secondary:hover {
-            background-color: #7f8c8d;
+            background-color: #4b5563;
+        }
+        
+        .btn-ai {
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            position: relative;
+        }
+        
+        .btn-ai:hover {
+            background: linear-gradient(135deg, var(--primary-hover), #2563eb);
         }
         
         .word-queue {
-            margin-top: 20px;
+            margin-top: var(--spacing-lg);
         }
         
         .word-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            background: white;
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-light);
+            background: var(--surface-color);
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .word-item:hover {
+            background: #f9fafb;
+        }
+        
+        @media (max-width: 767px) {
+            .word-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--spacing-sm);
+                padding: var(--spacing-md);
+            }
         }
         
         .word-item:last-child {
             border-bottom: none;
+            border-bottom-left-radius: var(--radius-lg);
+            border-bottom-right-radius: var(--radius-lg);
+        }
+        
+        .word-item:first-child {
+            border-top-left-radius: var(--radius-lg);
+            border-top-right-radius: var(--radius-lg);
         }
         
         .word-content {
             flex-grow: 1;
+            min-width: 0;
         }
         
         .word-text {
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
         }
         
         .word-status {
-            font-size: 12px;
-            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 8px;
             border-radius: 12px;
             color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }
         
         .status-pending {
-            background-color: #f39c12;
+            background: linear-gradient(135deg, var(--warning-color), #f97316);
         }
         
         .status-approved {
-            background-color: #27ae60;
+            background: linear-gradient(135deg, var(--success-color), #059669);
         }
         
         .status-rejected {
-            background-color: #e74c3c;
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
         }
         
         .word-actions {
             display: flex;
-            gap: 10px;
+            gap: var(--spacing-sm);
             align-items: center;
+            flex-wrap: wrap;
+            min-width: 0;
+        }
+        
+        @media (max-width: 767px) {
+            .word-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .definition-input {
+                width: 100%;
+                margin-bottom: var(--spacing-sm);
+            }
         }
         
         .definition-input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 200px;
-            margin-right: 10px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            width: 180px;
+            font-size: 13px;
+            font-family: inherit;
+            background-color: var(--surface-color);
+            transition: all 0.2s ease;
+        }
+        
+        .definition-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .definition-input::placeholder {
+            color: var(--text-muted);
         }
         
         .stats {
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
         }
         
         .stat-item {
-            padding: 15px;
+            background: var(--surface-color);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+        
+        .stat-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
         
         .stat-number {
-            font-size: 24px;
-            font-weight: bold;
             display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-xs);
         }
         
         .stat-label {
-            font-size: 14px;
-            color: #666;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .controls {
             display: flex;
-            gap: 10px;
+            gap: var(--spacing-sm);
             flex-wrap: wrap;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        @media (max-width: 767px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--spacing-sm);
+            }
         }
 
         .ai-content {
@@ -218,48 +395,58 @@
         }
         
         .alert {
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-sm);
+            border: 1px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            backdrop-filter: blur(8px);
         }
         
         .alert-success {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #065f46;
         }
         
         .alert-error {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #991b1b;
         }
         
         .anki-status {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            background: rgba(255, 255, 255, 0.95);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--spacing-sm);
             font-size: 14px;
+            font-weight: 500;
             z-index: 1000;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
         }
         
         .status-icon {
-            font-size: 20px;
+            font-size: 16px;
         }
         
         .status-connected {
-            color: #27ae60;
+            color: var(--success-color);
         }
         
         .status-disconnected {
-            color: #e74c3c;
+            color: var(--danger-color);
         }
         
         .status-checking {
@@ -270,6 +457,36 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
+        }
+        
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            margin-left: auto;
+        }
+        
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 767px) {
+            .delete-btn {
+                align-self: flex-end;
+                margin-left: 0;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -282,38 +499,35 @@
     <div class="container">
         <div class="header">
             <h1>GRE Vocabulary Manager</h1>
-            <p>Paste your words, review them, and export to Anki</p>
+            <p class="subtitle">AI-powered vocabulary learning with Anki integration</p>
         </div>
         
         <div class="card input-section">
             <h2>Add Words</h2>
-            <textarea 
-                id="wordInput" 
-                placeholder="Paste your vocabulary words here, one per line...&#10;Example:&#10;aberrant&#10;abscond&#10;abstemious&#10;admonish">
-            </textarea>
+            <textarea id="wordInput" placeholder="Paste your vocabulary words here, one per line...&#10;Example:&#10;aberrant&#10;abscond&#10;abstemious&#10;admonish"></textarea>
             <button class="btn" onclick="addWords()">Add Words to Queue</button>
         </div>
         
         <div class="card">
             <div class="stats" id="stats">
                 <div class="stat-item">
+                    <span class="stat-number" id="totalCount">0</span>
+                    <span class="stat-label">Total Words</span>
+                </div>
+                <div class="stat-item">
                     <span class="stat-number" id="pendingCount">0</span>
-                    <span class="stat-label">Pending</span>
+                    <span class="stat-label">Pending AI</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number" id="approvedCount">0</span>
-                    <span class="stat-label">Approved</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="rejectedCount">0</span>
-                    <span class="stat-label">Rejected</span>
+                    <span class="stat-number" id="readyCount">0</span>
+                    <span class="stat-label">Ready for Anki</span>
                 </div>
             </div>
             
             <div class="controls">
                 <button class="btn btn-success" onclick="exportToAnki()">Add to Anki Deck</button>
                 <button class="btn btn-secondary" onclick="syncAnki()">🔄 Sync Anki</button>
-                <button class="btn btn-secondary" onclick="clearApproved()">Clear Approved</button>
+                <button class="btn btn-danger" onclick="clearAll()">🗑️ Clear All</button>
                 <button class="btn btn-secondary" onclick="refreshQueue()">Refresh</button>
             </div>
         </div>
@@ -330,6 +544,47 @@
 
     <script>
         let wordQueue = [];
+        let currentConfig = null;
+
+        // Load configuration on page load
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                currentConfig = await response.json();
+                
+                console.log('🔧 Configuration loaded:', {
+                    isCustomConfig: currentConfig.isCustomConfig,
+                    systemPrompt: currentConfig.systemPrompt,
+                    hasEverydayConversation: currentConfig.userPromptTemplate.includes('everyday conversation'),
+                    hasUkiyoE: currentConfig.imagePromptPrefix.includes('ukiyo-e')
+                });
+                
+                if (currentConfig.isCustomConfig) {
+                    console.log('✅ Using custom .config.txt file');
+                } else {
+                    console.log('⚠️ Using default configuration (no .config.txt found)');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading configuration:', error);
+            }
+        }
+
+        // Function to show exact prompts for a word
+        function logPromptsForWord(word) {
+            if (!currentConfig) return;
+            
+            const userPrompt = currentConfig.userPromptTemplate.replace(/\{\{WORD\}\}/g, word);
+            
+            console.log(`🤖 EXACT PROMPTS FOR "${word.toUpperCase()}"`);
+            console.log('📤 System Prompt sent to GPT-5-mini:');
+            console.log(currentConfig.systemPrompt);
+            console.log('📤 User Prompt sent to GPT-5-mini:');
+            console.log(userPrompt);
+            console.log('🎨 Image Prompt Template:');
+            console.log(currentConfig.imagePromptPrefix);
+            console.log('---');
+        }
 
         async function addWords() {
             const input = document.getElementById('wordInput');
@@ -353,12 +608,47 @@
                 
                 if (result.success) {
                     showAlert(`Added ${result.added} words to queue`, 'success');
+                    showAlert('🤖 AI generation starting automatically for all words...', 'success');
+                    
+                    // Log exact prompts for each word being added
+                    const wordList = words.split('\n').map(w => w.trim()).filter(w => w.length > 0);
+                    wordList.forEach(word => {
+                        console.log(`\n🔍 Word added: "${word}"`);
+                        logPromptsForWord(word);
+                    });
+                    
                     input.value = '';
                     loadQueue();
+                    
+                    // Start auto-refreshing to show AI generation progress
+                    startAutoRefresh();
                 }
             } catch (error) {
                 showAlert('Error adding words', 'error');
             }
+        }
+
+        let autoRefreshInterval;
+        
+        function startAutoRefresh() {
+            // Clear any existing interval
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            // Refresh every 3 seconds to show AI generation progress
+            autoRefreshInterval = setInterval(() => {
+                loadQueue();
+            }, 3000);
+            
+            // Stop auto-refresh after 2 minutes
+            setTimeout(() => {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                    showAlert('Auto-refresh stopped. Click Refresh to update manually.', 'success');
+                }
+            }, 120000);
         }
 
         async function loadQueue() {
@@ -373,12 +663,14 @@
         }
 
         async function generateAI(id) {
-            const wordItem = document.querySelector(`[data-word-id="${id}"]`);
-            if (wordItem) {
-                wordItem.classList.add('loading');
-            }
+            const button = document.querySelector(`[data-word-id="${id}"] .btn-ai`);
+            const originalText = button.innerHTML;
             
-            showAlert('Generating AI content...', 'success');
+            // Add loading state
+            button.innerHTML = '⏳ Generating...';
+            button.disabled = true;
+            
+            showAlert('🤖 AI generation queued...', 'success');
             
             try {
                 const response = await fetch(`/api/generate-ai/${id}`, {
@@ -391,62 +683,35 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    showAlert('AI content generated successfully!', 'success');
-                    loadQueue();
+                    showAlert('✅ AI regeneration queued!', 'success');
+                    // Start refreshing to show progress
+                    startAutoRefresh();
                 } else {
-                    showAlert('Failed to generate AI content', 'error');
+                    showAlert('❌ Failed to queue AI generation', 'error');
                 }
             } catch (error) {
-                showAlert('Error generating AI content', 'error');
+                showAlert('❌ Error generating AI content', 'error');
+                console.error('Generate AI error:', error);
             } finally {
-                if (wordItem) {
-                    wordItem.classList.remove('loading');
-                }
+                // Reset button after a short delay
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000);
             }
         }
 
-        async function approveWord(id, definition = '', example = '') {
-            try {
-                const response = await fetch(`/api/approve/${id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ definition, example })
-                });
-                
-                if (response.ok) {
-                    loadQueue();
-                }
-            } catch (error) {
-                showAlert('Error approving word', 'error');
-            }
-        }
-
-        async function rejectWord(id) {
-            try {
-                const response = await fetch(`/api/reject/${id}`, {
-                    method: 'POST'
-                });
-                
-                if (response.ok) {
-                    loadQueue();
-                }
-            } catch (error) {
-                showAlert('Error rejecting word', 'error');
-            }
-        }
 
         async function exportToAnki() {
-            // Count approved words first
-            const approvedCount = wordQueue.filter(w => w.status === 'approved').length;
+            // Count words with AI content
+            const readyWords = wordQueue.filter(w => w.aiGenerated && w.definition && w.example).length;
             
-            if (approvedCount === 0) {
-                showAlert('No approved words to export', 'error');
+            if (readyWords === 0) {
+                showAlert('No words ready to export. Generate AI content first.', 'error');
                 return;
             }
             
-            showAlert(`🚀 Starting export of ${approvedCount} words to Anki...`, 'success');
+            showAlert(`🚀 Starting export of ${readyWords} words to Anki...`, 'success');
             showAlert('📡 Connecting to AnkiConnect...', 'success');
             
             try {
@@ -496,20 +761,20 @@
             }
         }
 
-        async function clearApproved() {
-            if (confirm('Are you sure you want to clear all approved words?')) {
+        async function clearAll() {
+            if (confirm('⚠️ Are you sure you want to clear ALL words from the queue? This cannot be undone.')) {
                 try {
-                    const response = await fetch('/api/clear-approved', {
+                    const response = await fetch('/api/clear-all', {
                         method: 'DELETE'
                     });
                     
                     const result = await response.json();
                     if (result.success) {
-                        showAlert(`Removed ${result.removed} approved words`, 'success');
+                        showAlert(`🗑️ Removed ${result.removed} words from queue`, 'success');
                         loadQueue();
                     }
                 } catch (error) {
-                    showAlert('Error clearing approved words', 'error');
+                    showAlert('❌ Error clearing words', 'error');
                 }
             }
         }
@@ -544,6 +809,25 @@
             }
         }
 
+        async function deleteWord(id) {
+            try {
+                const response = await fetch(`/api/word/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showAlert(`Deleted "${result.word}"`, 'success');
+                    loadQueue();
+                } else {
+                    showAlert('Failed to delete word', 'error');
+                }
+            } catch (error) {
+                showAlert('Error deleting word', 'error');
+                console.error('Delete error:', error);
+            }
+        }
+
         function refreshQueue() {
             loadQueue();
             showAlert('Queue refreshed', 'success');
@@ -572,51 +856,42 @@
                     `;
                 }
                 
-                if (word.status === 'pending') {
-                    actions = `
-                        <button class="btn btn-ai" onclick="generateAI(${word.id})" ${word.aiGenerated ? 'disabled' : ''}>
-                            ${word.aiGenerated ? 'AI Generated' : 'Generate AI'}
-                        </button>
-                        <input type="text" class="definition-input" placeholder="Definition (optional)" 
-                               id="def-${word.id}" value="${word.definition || ''}">
-                        <input type="text" class="definition-input" placeholder="Example (optional)" 
-                               id="ex-${word.id}" value="${word.example || ''}">
-                        <button class="btn btn-success" onclick="approveWithContent(${word.id})">Approve</button>
-                        <button class="btn btn-danger" onclick="rejectWord(${word.id})">Reject</button>
-                    `;
-                }
+                const isGenerating = word.definition && !word.aiGenerated;
+                actions = `
+                    <button class="btn btn-ai" onclick="generateAI(${word.id})" ${isGenerating ? 'disabled' : ''}>
+                        ${isGenerating ? '⏳ Generating...' : (word.aiGenerated ? '🔄 Regenerate' : '🤖 Generate AI')}
+                    </button>
+                    <input type="text" class="definition-input" placeholder="Definition (optional)" 
+                           id="def-${word.id}" value="${word.definition || ''}">
+                    <input type="text" class="definition-input" placeholder="Example (optional)" 
+                           id="ex-${word.id}" value="${word.example || ''}">
+                `;
                 
                 return `
                     <div class="word-item" data-word-id="${word.id}">
                         <div class="word-content">
                             <div class="word-text">${word.word}</div>
                             ${aiContent}
-                            <span class="word-status ${statusClass}">${word.status}${word.aiGenerated ? ' (AI)' : ''}</span>
+                            <span class="word-status ${statusClass}">${word.aiGenerated ? '✨ AI Generated' : '⏳ Pending'}</span>
                         </div>
                         <div class="word-actions">
                             ${actions}
                         </div>
+                        <button class="delete-btn" onclick="deleteWord(${word.id})" title="Delete">×</button>
                     </div>
                 `;
             }).join('');
         }
 
-        function approveWithContent(id) {
-            const definitionInput = document.getElementById(`def-${id}`);
-            const exampleInput = document.getElementById(`ex-${id}`);
-            const definition = definitionInput ? definitionInput.value : '';
-            const example = exampleInput ? exampleInput.value : '';
-            approveWord(id, definition, example);
-        }
 
         function updateStats() {
-            const pending = wordQueue.filter(w => w.status === 'pending').length;
-            const approved = wordQueue.filter(w => w.status === 'approved').length;
-            const rejected = wordQueue.filter(w => w.status === 'rejected').length;
+            const total = wordQueue.length;
+            const pending = wordQueue.filter(w => !w.aiGenerated).length;
+            const ready = wordQueue.filter(w => w.aiGenerated && w.definition && w.example).length;
             
+            document.getElementById('totalCount').textContent = total;
             document.getElementById('pendingCount').textContent = pending;
-            document.getElementById('approvedCount').textContent = approved;
-            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('readyCount').textContent = ready;
         }
 
         function showAlert(message, type) {
@@ -632,13 +907,33 @@
             }, 3000);
         }
 
+        // Smart Anki status checking with exponential backoff
+        let ankiCheckInterval;
+        let ankiCheckTimeout = 5000; // Start with 5 seconds
+        let consecutiveSuccesses = 0;
+        let consecutiveFailures = 0;
+        let lastKnownStatus = null;
+
+        function scheduleNextAnkiCheck() {
+            if (ankiCheckInterval) {
+                clearTimeout(ankiCheckInterval);
+            }
+            
+            ankiCheckInterval = setTimeout(() => {
+                checkAnkiStatus();
+            }, ankiCheckTimeout);
+        }
+
         async function checkAnkiStatus() {
             const statusIcon = document.getElementById('statusIcon');
             const statusText = document.getElementById('statusText');
             
-            statusIcon.textContent = '⏳';
-            statusIcon.className = 'status-icon status-checking';
-            statusText.textContent = 'Checking AnkiConnect...';
+            // Only show "checking" on first load or after failures
+            if (lastKnownStatus === null || consecutiveFailures > 0) {
+                statusIcon.textContent = '⏳';
+                statusIcon.className = 'status-icon status-checking';
+                statusText.textContent = 'Checking AnkiConnect...';
+            }
             
             try {
                 const response = await fetch('/api/anki-status');
@@ -654,26 +949,44 @@
                     } else {
                         statusText.textContent += ` - "${status.deckName}" deck will be created`;
                     }
+                    
+                    // Success: increase backoff time (max 60 seconds)
+                    consecutiveSuccesses++;
+                    consecutiveFailures = 0;
+                    lastKnownStatus = 'connected';
+                    
+                    if (consecutiveSuccesses >= 3) {
+                        ankiCheckTimeout = Math.min(60000, ankiCheckTimeout * 1.5);
+                    }
+                    
                 } else {
-                    statusIcon.textContent = '❌';
-                    statusIcon.className = 'status-icon status-disconnected';
-                    statusText.textContent = 'Anki not connected - Please start Anki';
+                    throw new Error('Anki not connected');
                 }
             } catch (error) {
-                statusIcon.textContent = '⚠️';
+                statusIcon.textContent = lastKnownStatus === 'connected' ? '⚠️' : '❌';
                 statusIcon.className = 'status-icon status-disconnected';
-                statusText.textContent = 'Server error - Check console';
+                statusText.textContent = 'Anki not connected - Please start Anki';
+                
+                // Failure: decrease backoff time for quicker recovery detection
+                consecutiveFailures++;
+                consecutiveSuccesses = 0;
+                lastKnownStatus = 'disconnected';
+                
+                // More frequent checks when disconnected (min 3 seconds, max 15 seconds)
+                ankiCheckTimeout = Math.max(3000, Math.min(15000, 3000 + (consecutiveFailures * 2000)));
             }
+            
+            // Schedule next check
+            scheduleNextAnkiCheck();
         }
 
         // Load queue on page load
+        // Load configuration and queue on page load  
+        loadConfig();
         loadQueue();
         
-        // Check Anki status on page load
-        checkAnkiStatus();
-        
-        // Check Anki status every 5 seconds
-        setInterval(checkAnkiStatus, 5000);
+        // Start smart Anki status checking
+        checkAnkiStatus(); // Initial check
     </script>
 </body>
 </html>

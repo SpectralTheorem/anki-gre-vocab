@@ -4,6 +4,9 @@ node_modules/
 # Environment variables (IMPORTANT - contains API keys!)
 .env
 
+# User configuration files
+.config.txt
+
 # Runtime files
 word-queue.json
 
